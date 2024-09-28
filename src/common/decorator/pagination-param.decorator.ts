@@ -4,7 +4,7 @@ import {
   ExecutionContext,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { Pagination } from '../types/pagination';
+import { Pagination } from '../entity/pagination';
 import { MAX_PAGE_SIZE } from '../lib/constants';
 
 export const PaginationParams = createParamDecorator(

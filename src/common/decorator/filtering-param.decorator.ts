@@ -4,7 +4,7 @@ import {
   ExecutionContext,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { Filtering } from '../types/filtering';
+import { Filtering } from '../entity/filtering';
 import { isValidDateParam, isValidLocaleParam } from '../lib/patterns';
 
 export const FilteringParams = createParamDecorator(

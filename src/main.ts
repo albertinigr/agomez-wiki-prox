@@ -12,7 +12,11 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: console,
   });
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  app.useGlobalInterceptors(
+    new ClassSerializerInterceptor(app.get(Reflector), {
+      // strategy: 'excludeAll',
+    }),
+  );
   app.use(compression());
   app.enableCors();
   app.use(helmet());

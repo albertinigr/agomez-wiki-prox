@@ -10,11 +10,10 @@ import {
   DEFAULT_SECTION,
   DEFAULT_SIZE,
 } from '@/common/lib/constants';
-import { Filtering } from '@/common/types/filtering';
-import { Pagination } from '@/common/types/pagination';
-import { PaginatedResource } from '@/common/types/paginated-resource';
-import { ArticleDto } from '@/wiki/dto';
-import { plainToInstance } from 'class-transformer';
+import { Filtering } from '@/common/entity/filtering';
+import { Pagination } from '@/common/entity/pagination';
+import { PaginatedResource } from '@/common/entity/paginated-resource';
+import { Article } from '@/wiki/entity';
 
 @Injectable()
 export class WikiService {
@@ -30,7 +29,7 @@ export class WikiService {
     section = DEFAULT_SECTION,
     { locale, date }: Filtering = { locale: DEFAULT_LOCALE, date: null },
     pagination?: Pagination,
-  ): Promise<PaginatedResource<ArticleDto>> {
+  ): Promise<PaginatedResource<Article>> {
     const today = new Date().toISOString().split('T')[0].replace(/-/g, '/');
 
     const url = buildWikiUrl({
@@ -58,9 +57,9 @@ export class WikiService {
     const pagedData = data?.mostread?.articles?.slice(start, start + offset);
     return {
       totalItems: data?.mostread?.articles?.length,
-      items: plainToInstance(ArticleDto, pagedData),
+      items: pagedData,
       page: pagination?.page || DEFAULT_PAGE,
       size: pagination?.size || DEFAULT_SIZE,
-    } as PaginatedResource<ArticleDto>;
+    } as PaginatedResource<Article>;
   }
 }
