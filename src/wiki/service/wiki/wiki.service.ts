@@ -2,6 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { buildWikiUrl } from './lib/util';
+import { catchError, firstValueFrom } from 'rxjs';
+import { AxiosError } from 'axios';
+import { Feed } from './entity';
 
 @Injectable()
 export class WikiService {
@@ -20,15 +23,23 @@ export class WikiService {
     locale: string;
     section: string;
     date: string;
-  }) {
+  }): Promise<Feed> {
     const url = buildWikiUrl({
       path: this.configService.get('wikiService.feed'),
       locale,
       section,
       date,
     });
-    this.logger.log(`GET ${url}`);
-    const data = await this.httpService.get(url).toPromise();
-    return data.data;
+
+    const { data } = await firstValueFrom(
+      this.httpService.get(url).pipe(
+        catchError((error: AxiosError) => {
+          this.logger.error(error.response.data);
+          throw 'An error happened!';
+        }),
+      ),
+    );
+
+    return data;
   }
 }
