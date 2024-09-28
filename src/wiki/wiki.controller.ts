@@ -1,7 +1,13 @@
 import { PaginatedResource } from '@/common/entity/paginated-resource';
-import { Controller, Get, HttpCode, HttpStatus, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  UseInterceptors,
+} from '@nestjs/common';
 import { WikiService } from './service/wiki/wiki.service';
-import { ArticleDto } from './dto';
 import { PaginationParams } from '@/common/decorator/pagination-param.decorator';
 import { Pagination } from '@/common/entity/pagination';
 import { FilteringParams } from '@/common/decorator/filtering-param.decorator';
@@ -10,8 +16,10 @@ import { DEFAULT_SECTION } from '@/common/lib/constants';
 import { plainToInstance } from 'class-transformer';
 import { TranslateService } from '@/common/service/translate/translate.service';
 import { ArticleEssencialDto } from './dto/article-essencial.dto';
+import { LoggingInterceptor } from '@/common/interceptor/logging.interceptor';
 
 @Controller('feed')
+@UseInterceptors(LoggingInterceptor)
 export class WikiController {
   constructor(
     private readonly wikiService: WikiService,

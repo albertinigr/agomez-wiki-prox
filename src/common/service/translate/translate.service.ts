@@ -4,7 +4,6 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AxiosError } from 'axios';
-import { log } from 'console';
 import { catchError, firstValueFrom } from 'rxjs';
 
 @Injectable()

@@ -3,10 +3,16 @@ import { AppModule } from './app.module';
 import { ClassSerializerInterceptor } from '@nestjs/common';
 import helmet from 'helmet';
 import * as compression from 'compression';
+import errsole from 'errsole';
+import ErrsoleSequelize from 'errsole-sequelize';
 import 'dotenv/config';
-import { config } from 'dotenv';
 
-config();
+errsole.initialize({
+  storage: new ErrsoleSequelize({
+    dialect: 'sqlite',
+    storage: process.env.SQLITE_PATH,
+  }),
+});
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {

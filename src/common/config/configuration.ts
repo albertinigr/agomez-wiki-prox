@@ -1,8 +1,8 @@
 export default () => ({
   url: process.env.URL,
   port: process.env.PORT ? parseInt(process.env.PORT, 10) : 3000,
-  database: {
-    serviceUrl: process.env.DB_POSTGRE_URL,
+  sqlite3: {
+    path: process.env.SQLite_DB_PATH,
   },
   translationService: {
     url: process.env.TRANSLATION_SERVICE_URL,
