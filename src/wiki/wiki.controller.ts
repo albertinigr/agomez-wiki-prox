@@ -1,30 +1,35 @@
-import { Controller, Get, Param } from '@nestjs/common';
-import { plainToInstance } from 'class-transformer';
+import { PaginatedResource } from '@/common/types/paginated-resource';
+import { Controller, Get, HttpCode, HttpStatus, Param } from '@nestjs/common';
 import { WikiService } from './service/wiki/wiki.service';
-import { FeedDto } from './dto';
+import { ArticleDto } from './dto';
 import { PaginationParams } from '@/common/decorator/pagination-param.decorator';
-import { Pagination } from '@/common/entity/pagination';
+import { Pagination } from '@/common/types/pagination';
 import { FilteringParams } from '@/common/decorator/filtering-param.decorator';
-import { Filtering } from '@/common/entity/filtering';
+import { Filtering } from '@/common/types/filtering';
+import { DEFAULT_SECTION } from '@/common/lib/constants';
 
 @Controller('feed')
 export class WikiController {
   constructor(private readonly wikiService: WikiService) {}
 
   @Get()
+  @HttpCode(HttpStatus.OK)
   async feed(
-    @FilteringParams() filteringParams?: Filtering,
+    @FilteringParams() filteringParams: Filtering,
     @PaginationParams() paginationParams?: Pagination,
-  ): Promise<FeedDto> {
-    const feed = await this.wikiService.feed({
-      locale: 'en',
-      section: 'featured',
-      date: '2024/09/27',
-    });
-    return plainToInstance(FeedDto, feed);
+  ): Promise<PaginatedResource<ArticleDto>> {
+    const section = DEFAULT_SECTION;
+    const paginatedResult = await this.wikiService.feed(
+      section,
+      filteringParams,
+      paginationParams,
+    );
+
+    return paginatedResult;
   }
 
   @Get('translate/:language')
+  @HttpCode(HttpStatus.OK)
   findOne(@Param() language: string) {
     return `This action returns a #${language} wiki`;
   }

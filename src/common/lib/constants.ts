@@ -176,7 +176,7 @@ export const LOCALES = [
 ];
 export const DATE_FORMAT = 'YYYY-MM-DD';
 export const MAX_PAGE_SIZE = 50;
-export const DEFAULT_PAGE = 0;
+export const DEFAULT_PAGE = 1;
 export const DEFAULT_SIZE = 10;
 export const DEFAULT_LOCALE = 'en';
 export const DEFAULT_SECTION = 'featured';
