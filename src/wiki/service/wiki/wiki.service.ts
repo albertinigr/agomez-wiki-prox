@@ -1,14 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
-import { buildWikiUrl } from './lib/util';
 import { catchError, firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
-import { Feed } from './entity';
+import { buildWikiUrl } from '../../lib/util';
+import { Feed } from '../../entity';
 
 @Injectable()
 export class WikiService {
   private readonly logger = new Logger(WikiService.name);
+  private baseUrl: string = this.configService.get('wikiService.feed');
 
   constructor(
     private readonly httpService: HttpService,
@@ -25,7 +26,7 @@ export class WikiService {
     date: string;
   }): Promise<Feed> {
     const url = buildWikiUrl({
-      path: this.configService.get('wikiService.feed'),
+      path: this.baseUrl,
       locale,
       section,
       date,
