@@ -39,6 +39,8 @@ export class WikiService {
       date: date ?? today,
     });
 
+    console.log(url);
+
     const { data } = await firstValueFrom(
       this.httpService.get(url).pipe(
         catchError((error: AxiosError) => {
