@@ -15,6 +15,9 @@ import { Pagination } from '@/common/entity/pagination';
 import { PaginatedResource } from '@/common/entity/paginated-resource';
 import { Article } from '@/wiki/entity';
 
+import feedJson from '../../lib/feed.json';
+import { log } from 'console';
+
 @Injectable()
 export class WikiService {
   private readonly logger = new Logger(WikiService.name);
@@ -39,26 +42,32 @@ export class WikiService {
       date: date ?? today,
     });
 
-    console.log(url);
-
-    const { data } = await firstValueFrom(
-      this.httpService.get(url).pipe(
-        catchError((error: AxiosError) => {
-          this.logger.error(error.response.data);
-          throw 'An error happened!';
-        }),
-      ),
-    );
-
-    if (!data?.mostread?.articles?.length) {
-      throw 'No data found!';
+    let articles = [];
+    try {
+      const { data } = await firstValueFrom(
+        this.httpService.get(url).pipe(
+          catchError((error: AxiosError) => {
+            this.logger.error(error.response.data);
+            throw 'An error happened!';
+          }),
+        ),
+      );
+      if (!data?.mostread?.articles?.length) {
+        throw 'No data found!';
+      }
+      articles = [...data?.mostread?.articles];
+    } catch (error) {
+      // TODO IMPORTANT: Wikipedia sometimes doesn't return data (mostread), so we use a local file as a fallback
+      this.logger.error(error);
+      log('feedJson', feedJson);
+      articles = [...feedJson.mostread.articles];
     }
 
     const start = pagination?.page * pagination?.size || DEFAULT_PAGE;
     const offset = pagination?.size || DEFAULT_SIZE;
-    const pagedData = data?.mostread?.articles?.slice(start, start + offset);
+    const pagedData = articles?.slice(start, start + offset);
     return {
-      totalItems: data?.mostread?.articles?.length,
+      totalItems: articles?.length,
       items: pagedData,
       page: pagination?.page || DEFAULT_PAGE,
       size: pagination?.size || DEFAULT_SIZE,
