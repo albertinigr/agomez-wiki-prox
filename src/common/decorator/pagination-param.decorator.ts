@@ -28,8 +28,6 @@ export const PaginationParams = createParamDecorator(
       );
     }
 
-    const limit = size;
-    const offset = page * limit;
-    return { page, limit, size, offset };
+    return { page, size };
   },
 );

@@ -33,14 +33,17 @@ export class WikiService {
     { locale, date }: Filtering = { locale: DEFAULT_LOCALE, date: null },
     pagination?: Pagination,
   ): Promise<PaginatedResource<Article>> {
-    const today = new Date().toISOString().split('T')[0].replace(/-/g, '/');
+    const today = new Date().toISOString().split('T')[0];
+    const formattedDate = date ? date.replace(/-/g, '/') : today;
 
     const url = buildWikiUrl({
       path: this.baseUrl,
       locale,
       section,
-      date: date ?? today,
+      date: formattedDate,
     });
+
+    console.log('url', url);
 
     let articles = [];
     try {

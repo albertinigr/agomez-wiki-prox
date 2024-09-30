@@ -9,7 +9,9 @@ import { plainToInstance } from 'class-transformer';
 import { TranslateService } from '@/common/service/translate/translate.service';
 import { LoggingInterceptor } from '@/common/interceptor/logging.interceptor';
 import { LocaleDto } from '@/common/dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Language')
 @Controller('language')
 @UseInterceptors(LoggingInterceptor)
 export class LanguageController {

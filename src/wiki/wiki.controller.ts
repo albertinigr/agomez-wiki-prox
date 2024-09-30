@@ -9,15 +9,17 @@ import {
 } from '@nestjs/common';
 import { WikiService } from './service/wiki/wiki.service';
 import { PaginationParams } from '@/common/decorator/pagination-param.decorator';
-import { Pagination } from '@/common/entity/pagination';
 import { FilteringParams } from '@/common/decorator/filtering-param.decorator';
-import { Filtering } from '@/common/entity/filtering';
 import { DEFAULT_SECTION } from '@/common/lib/constants';
 import { plainToInstance } from 'class-transformer';
 import { TranslateService } from '@/common/service/translate/translate.service';
 import { ArticleEssencialDto } from './dto/article-essencial.dto';
 import { LoggingInterceptor } from '@/common/interceptor/logging.interceptor';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
+import { FilteringDto } from '@/common/dto/filtering.dto';
+import { PaginationDto } from '@/common/dto/pagination.dto';
 
+@ApiTags('Feed')
 @Controller('feed')
 @UseInterceptors(LoggingInterceptor)
 export class WikiController {
@@ -28,9 +30,13 @@ export class WikiController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
+  @ApiQuery({ name: 'date', required: true, example: '2024/09/28' })
+  @ApiQuery({ name: 'locale', required: true, example: 'en' })
+  @ApiQuery({ name: 'page', required: true, example: 0 })
+  @ApiQuery({ name: 'size', required: true, example: 5 })
   async feed(
-    @FilteringParams() filteringParams: Filtering,
-    @PaginationParams() paginationParams?: Pagination,
+    @FilteringParams() filteringParams: FilteringDto,
+    @PaginationParams() paginationParams?: PaginationDto,
   ): Promise<PaginatedResource<ArticleEssencialDto>> {
     const section = DEFAULT_SECTION;
     const paginatedResult = await this.wikiService.feed(
@@ -46,10 +52,14 @@ export class WikiController {
 
   @Get('translate/:language')
   @HttpCode(HttpStatus.OK)
+  @ApiQuery({ name: 'date', required: true, example: '2024/09/28' })
+  @ApiQuery({ name: 'locale', required: true, example: 'en' })
+  @ApiQuery({ name: 'page', required: true, example: 0 })
+  @ApiQuery({ name: 'size', required: true, example: 5 })
   async translateToTargetLanguage(
     @Param('language') language: string,
-    @FilteringParams() filteringParams: Filtering,
-    @PaginationParams() paginationParams?: Pagination,
+    @FilteringParams() filteringParams: FilteringDto,
+    @PaginationParams() paginationParams?: PaginationDto,
   ): Promise<any> {
     // validate if language is supported and also if the target language is supported
     const languages = await this.translateService.languages();
