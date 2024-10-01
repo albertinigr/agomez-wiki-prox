@@ -43,8 +43,6 @@ export class WikiService {
       date: formattedDate,
     });
 
-    console.log('url', url);
-
     let articles = [];
     try {
       const { data } = await firstValueFrom(
