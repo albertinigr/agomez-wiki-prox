@@ -19,8 +19,8 @@ export class TranslateService {
   async languages(): Promise<TargetLanguage[]> {
     const { data } = await firstValueFrom(
       this.httpService.get(`${this.baseUrl}/languages`).pipe(
-        catchError((error: AxiosError) => {
-          this.logger.error(error.response);
+        catchError((error) => {
+          this.logger.error(error?.response);
           throw 'An error happened!';
         }),
       ),
@@ -43,7 +43,7 @@ export class TranslateService {
         })
         .pipe(
           catchError((error: AxiosError) => {
-            this.logger.error(error.response.data);
+            this.logger.error(error?.response?.data);
             throw 'An error happened!';
           }),
         ),

@@ -9,14 +9,11 @@ import {
   DEFAULT_PAGE,
   DEFAULT_SECTION,
   DEFAULT_SIZE,
-} from '@/common/lib/constants';
+} from '../../../common/lib/constants';
 import { Filtering } from '@/common/entity/filtering';
 import { Pagination } from '@/common/entity/pagination';
 import { PaginatedResource } from '@/common/entity/paginated-resource';
 import { Article } from '@/wiki/entity';
-
-import feedJson from '../../lib/feed.json';
-import { log } from 'console';
 
 @Injectable()
 export class WikiService {
@@ -49,7 +46,7 @@ export class WikiService {
         this.httpService.get(url).pipe(
           catchError((error: AxiosError) => {
             this.logger.error(error.response.data);
-            throw 'An error happened!';
+            throw 'An error happened while requesting wiki site!';
           }),
         ),
       );
@@ -58,10 +55,7 @@ export class WikiService {
       }
       articles = [...data?.mostread?.articles];
     } catch (error) {
-      // TODO IMPORTANT: Wikipedia sometimes doesn't return data (mostread), so we use a local file as a fallback
-      this.logger.error(error);
-      log('feedJson', feedJson);
-      articles = [...feedJson.mostread.articles];
+      throw 'An error happened!';
     }
 
     const start = pagination?.page * pagination?.size || DEFAULT_PAGE;

@@ -6,9 +6,9 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { TranslateService } from '@/common/service/translate/translate.service';
-import { LoggingInterceptor } from '@/common/interceptor/logging.interceptor';
-import { LocaleDto } from '@/common/dto';
+import { TranslateService } from '../common/service/translate/translate.service';
+import { LoggingInterceptor } from '../common/interceptor/logging.interceptor';
+import { LocaleDto } from '../common/dto';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Language')
@@ -20,7 +20,11 @@ export class LanguageController {
   @Get('/available-languages')
   @HttpCode(HttpStatus.OK)
   async getAvailableLanguages(): Promise<LocaleDto[]> {
-    const availableLanguages = await this.translateService.languages();
-    return plainToInstance(LocaleDto, availableLanguages);
+    try {
+      const availableLanguages = await this.translateService.languages();
+      return plainToInstance(LocaleDto, availableLanguages);
+    } catch (error) {
+      throw error;
+    }
   }
 }

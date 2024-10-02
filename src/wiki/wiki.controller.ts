@@ -7,17 +7,17 @@ import {
   Param,
   UseInterceptors,
 } from '@nestjs/common';
-import { WikiService } from './service/wiki/wiki.service';
-import { PaginationParams } from '@/common/decorator/pagination-param.decorator';
-import { FilteringParams } from '@/common/decorator/filtering-param.decorator';
-import { DEFAULT_SECTION } from '@/common/lib/constants';
 import { plainToInstance } from 'class-transformer';
-import { TranslateService } from '@/common/service/translate/translate.service';
+import { WikiService } from './service/wiki/wiki.service';
+import { PaginationParams } from '../common/decorator/pagination-param.decorator';
+import { FilteringParams } from '../common/decorator/filtering-param.decorator';
+import { DEFAULT_SECTION } from '../common/lib/constants';
+import { TranslateService } from '../common/service/translate/translate.service';
 import { ArticleEssencialDto } from './dto/article-essencial.dto';
-import { LoggingInterceptor } from '@/common/interceptor/logging.interceptor';
+import { LoggingInterceptor } from '../common/interceptor/logging.interceptor';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
-import { FilteringDto } from '@/common/dto/filtering.dto';
-import { PaginationDto } from '@/common/dto/pagination.dto';
+import { FilteringDto } from '../common/dto/filtering.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @ApiTags('Feed')
 @Controller('feed')
@@ -38,16 +38,20 @@ export class WikiController {
     @FilteringParams() filteringParams: FilteringDto,
     @PaginationParams() paginationParams?: PaginationDto,
   ): Promise<PaginatedResource<ArticleEssencialDto>> {
-    const section = DEFAULT_SECTION;
-    const paginatedResult = await this.wikiService.feed(
-      section,
-      filteringParams,
-      paginationParams,
-    );
-    return {
-      ...paginatedResult,
-      items: plainToInstance(ArticleEssencialDto, paginatedResult.items),
-    };
+    try {
+      const section = DEFAULT_SECTION;
+      const paginatedResult = await this.wikiService.feed(
+        section,
+        filteringParams,
+        paginationParams,
+      );
+      return {
+        ...paginatedResult,
+        items: plainToInstance(ArticleEssencialDto, paginatedResult.items),
+      };
+    } catch (error) {
+      throw error;
+    }
   }
 
   @Get('translate/:language')
@@ -61,41 +65,43 @@ export class WikiController {
     @FilteringParams() filteringParams: FilteringDto,
     @PaginationParams() paginationParams?: PaginationDto,
   ): Promise<any> {
-    // validate if language is supported and also if the target language is supported
-    const languages = await this.translateService.languages();
-    const currentLanguage = languages.find(
-      (lang) => lang.code === filteringParams.locale,
-    );
-    if (!currentLanguage) throw new Error('Language not supported');
-    if (currentLanguage.targets.indexOf(language) === -1)
-      throw new Error(
-        `Target Language not supported for ${JSON.stringify(language)}`,
+    try {
+      // validate if language is supported and also if the target language is supported
+      const languages = await this.translateService.languages();
+      const currentLanguage = languages.find(
+        (lang) => lang.code === filteringParams.locale,
+      );
+      if (!currentLanguage) throw 'Language not supported';
+      if (currentLanguage.targets.indexOf(language) === -1)
+        throw 'Target Language not supported';
+
+      // search articles
+      const section = DEFAULT_SECTION;
+      const results = await this.wikiService.feed(
+        section,
+        filteringParams,
+        paginationParams,
       );
 
-    // search articles
-    const section = DEFAULT_SECTION;
-    const results = await this.wikiService.feed(
-      section,
-      filteringParams,
-      paginationParams,
-    );
+      const paginatedResult = {
+        ...results,
+        items: plainToInstance(ArticleEssencialDto, results.items),
+      };
 
-    const paginatedResult = {
-      ...results,
-      items: plainToInstance(ArticleEssencialDto, results.items),
-    };
+      // translate articles
+      const translatedList = await this.translateService.translateList(
+        paginatedResult.items,
+        ['title', 'extract'],
+        filteringParams.locale,
+        language,
+      );
 
-    // translate articles
-    const translatedList = await this.translateService.translateList(
-      paginatedResult.items,
-      ['title', 'extract'],
-      filteringParams.locale,
-      language,
-    );
-
-    return {
-      ...paginatedResult,
-      items: translatedList,
-    };
+      return {
+        ...paginatedResult,
+        items: translatedList,
+      };
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 }
